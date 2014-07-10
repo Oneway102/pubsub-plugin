@@ -16,9 +16,21 @@
     <adminconsole>
         <tab id="tab-server" >
             <sidebar id="pub-sub" name="pubsub manage" description="pubsub manage">
-                <item id="nodelist" name="nodelist"
+                <item id="nodelist" name="Topic Summary"
                       url="main.jsp"
-                      description="node list"/>
+                      description="Topic list">
+                    <sidebar id="node-options" name="Topic Options">
+                        <item id="node-items" name="Published Items"
+                            url="topic.jsp"
+                            description="topic list" />
+                        <item id="node-subscribers" name="Subscribers"
+                            url="subscribers.jsp"
+                            description="node subscribers" />
+                    </sidebar>
+                </item>
+                <item id="node-create" name="Create New Topic"
+                      url="topic-create.jsp"
+                      description="ccc"/>
             </sidebar>
         </tab>
     </adminconsole>

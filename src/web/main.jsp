@@ -1,21 +1,18 @@
 <%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.List"%>
 <%@page import="org.jivesoftware.openfire.pubsub.Node"%>
 <%@page import="com.lulu.openfire.plugin.PubSubManager" %>
+
+<jsp:useBean id="webManager" class="org.jivesoftware.util.WebManager"  />
+<% webManager.init(request, response, session, application, out ); %>
 
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>My Plugin Page</title>
+<title>Topic List</title>
 
-<meta name="pageID" content="nodelist" />
-<style type="text/css">
-	.clear{
-		clear:both;
-	}
-	#topic-list{
-		width: 100%
-	}
-</style>
+    <meta name="pageID" content="nodelist" />
+
 <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
@@ -109,42 +106,27 @@
 </script>
 </head>
 <body>
-    <div class="jive-contentBoxHeader">Add Node
-    </div>
-    <div class="jive-contentBox">
-      <form>
-        <p nowrap>New Topic 
-          <input type="text" size="80" id="newTopicId" />
-          <input type="button" value="submit" onclick='addTopic()' />
-        </p>
-      </form>
-      <form>
-        <p nowrap>Another 
-          <input type="text" size="80" name="http_host" id="" />
-          <input type="button" value="add" />
-        </p>
-      </form>
-      <p>comments</p>
-    </div>
-
-
-<div>Topic list</div>
-<div id="topic-list">
-	<table border="1">
+<%
+    PubSubManager m = PubSubManager.getInstance();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    List<Node> topics = m.getToptics();
+%>
+<p>Total: <%= topics.size() %></p>
+<div id="topic-list" class="jive-table">
+	<table cellpadding="0" cellspacing="0" border="0" width="100%">
 		<thead>
-			<tr><td>NodeId</td><td>Creator</td><td>CreationDate</td><td>Subscriptions</td><td>PublisherModel</td><td>Action</td></tr>
+			<tr><th>NodeId</th><th>Creator</th><th>CreationDate</th><th>Subscriptions</th><th>PublisherModel</th><th>Action</th></tr>
 		</thead>
 		<tbody>
 	
 <%
-	PubSubManager m = PubSubManager.getInstance();
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	for(Node n:m.getToptics()){
+    int i = 0;
+	for(Node n : topics){
 		if(n.getNodeID().trim().equals("")){
 			continue;
 		}
 %>
-	<tr>
+	<tr class="jive-<%= (((i%2)==0) ? "even" : "odd") %>">
         <td><a href="topic.jsp?topicId=<%= n.getNodeID()%>" ><%= n.getNodeID()%></a></td>
 		<td><%= n.getCreator()%></td>
 		<td><%= sdf.format(n.getCreationDate()) %></td>
@@ -153,23 +135,24 @@
 		<td><input type="button" value="remove" onclick='removeTopic("<%= n.getNodeID()%>")'/></td>
 	</tr>
 <%
+        i++;
 	}
 %>
 	</tbody>
 	</table>
 </div>
-<div>Subscribers list</div>
+<!-- div>Subscribers list</div>
 <div id="subscriber-list">
-		<table border="1">
-			<thead>
-				<tr>
-					<td>Subscriber</td>
-					<td>Action</td>
-				</tr>
-			</thead>
-			<tbody id="subscriber-body">
-			</tbody>
-		</table>
-	</div>
+	<table border="1">
+		<thead>
+			<tr>
+				<td>Subscriber</td>
+				<td>Action</td>
+			</tr>
+		</thead>
+		<tbody id="subscriber-body">
+		</tbody>
+	</table>
+</div -->
 </body>
 </html>

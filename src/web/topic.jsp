@@ -2,22 +2,30 @@
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
+<%@ page import="java.net.URLEncoder" %>
 <%@page import="org.jivesoftware.openfire.pubsub.Node"%>
 <%@page import="org.jivesoftware.openfire.pubsub.LeafNode"%>
 <%@page import="org.jivesoftware.openfire.pubsub.PublishedItem"%>
 <%@page import="com.lulu.openfire.plugin.PubSubManager" %>
 
+<jsp:useBean id="webManager" class="org.jivesoftware.util.WebManager" />
+
+<%
+    PubSubManager m = PubSubManager.getInstance();
+    String topicId = request.getParameter("topicId");
+    Node topic = m.getTopic(topicId);
+%>
+
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>My Plugin Page</title>
-
+    <title>Topic Info</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="subPageID" content="node-items"/>
+    <meta name="extraParams" content='<%= "topicId="+URLEncoder.encode(topicId, "UTF-8") %>'/>
 <style type="text/css">
 	.clear{
 		clear:both;
-	}
-	#subscribe-list{
-		width: 100%
 	}
 </style>
 <script type="text/javascript" src="js/jquery-1.8.2.js"></script>
@@ -59,17 +67,12 @@
 </script>
 </head>
 <body>
-<%
-    PubSubManager m = PubSubManager.getInstance();
-    String topicId = request.getParameter("topicId");
-    Node topic = m.getTopic(topicId);
-%>
 
 <div>Item list</div>
-<div id="item-list">
-    <table border="1">
+<div id="item-list" class="jive-table">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <thead>
-            <tr><td>ID</td><td>Content</td><td>CreationDate</td><td>Action</td></tr>
+            <tr><th>ID</th><th>Content</th><th>CreationDate</th><th>Action</th></tr>
         </thead>
         <tbody>
 <%
@@ -80,48 +83,29 @@
         items = ((LeafNode)topic).getPublishedItems(50);
     }
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    int i = 0;
     for (PublishedItem item : items) {
         String content = item.getPayload() == null ? "" : item.getPayload().getText();
 %>
-    <tr>
+    <tr class="jive-<%= (((i%2)==0) ? "even" : "odd") %>">
         <td><%= item.getID()%></td>
         <td><%= content %></td>
         <td><%= sdf.format(item.getCreationDate()) %></td>
         <td><input type="button" value="delete" onclick='deleteItem("<%= topicId %>", "<%= item.getID()%>")' /></td>
     </tr>
 <%
+        i++;
     }
 %>
-            <tr>
+            <tr class="jive-<%= (((i%2)==0) ? "even" : "odd") %>">
               <td></td><td><input type="text" id="newTopicContent"></td>
+              <td></td>
               <td><input type="button" value="publish" onclick='publishItem("<%= topicId %>")' /></td>
             </tr>
         </tbody>
     </table>
 </div>
 
-<div>Subscriber list</div>
-<div id="subscribe-list">
-	<table border="1">
-		<thead>
-			<tr><td>Subscriber</td><td>Action</td></tr>
-		</thead>
-		<tbody>
-	
-<%
-	//PubSubManager m = PubSubManager.getInstance();
-	//String topicId = request.getParameter("topicId");
-	for(NodeSubscription s:m.getTopticSubscribers(topicId)){ 
-%>
-			<tr>
-				<td><%= s.getJID()%></td>
-				<td><input type="button" value="remove" /></td>
-			</tr>
-<%
-	}
-%>
-	</tbody>
-	</table>
-</div>
+
 </body>
 </html>
