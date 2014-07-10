@@ -3,9 +3,6 @@
 <%@page import="org.jivesoftware.openfire.pubsub.Node"%>
 <%@page import="com.lulu.openfire.plugin.PubSubManager" %>
 
-<jsp:useBean id="webManager" class="org.jivesoftware.util.WebManager"  />
-<% webManager.init(request, response, session, application, out ); %>
-
 <!DOCTYPE HTML>
 <html>
 <head>

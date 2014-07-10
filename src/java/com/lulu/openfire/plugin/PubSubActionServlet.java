@@ -57,6 +57,7 @@ public class PubSubActionServlet extends HttpServlet {
 		}else if(action.equals("deleteItem")){
             result = deleteItem(req.getParameter("topicId"), req.getParameter("itemId")) + "";
 		}
+        resp.setContentType("text/plain");
 		resp.getWriter().write(result);
 	}
 

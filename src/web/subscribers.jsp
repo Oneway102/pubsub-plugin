@@ -3,7 +3,7 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@page import="org.jivesoftware.openfire.pubsub.Node"%>
 <%@page import="com.lulu.openfire.plugin.PubSubManager" %>
-<jsp:useBean id="webManager" class="org.jivesoftware.util.WebManager" />
+
 <%
 PubSubManager m = PubSubManager.getInstance();
 String topicId = request.getParameter("topicId");

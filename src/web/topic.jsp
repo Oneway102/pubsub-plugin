@@ -8,8 +8,6 @@
 <%@page import="org.jivesoftware.openfire.pubsub.PublishedItem"%>
 <%@page import="com.lulu.openfire.plugin.PubSubManager" %>
 
-<jsp:useBean id="webManager" class="org.jivesoftware.util.WebManager" />
-
 <%
     PubSubManager m = PubSubManager.getInstance();
     String topicId = request.getParameter("topicId");

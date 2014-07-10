@@ -13,11 +13,14 @@ import org.jivesoftware.openfire.pubsub.DefaultNodeConfiguration;
 import org.jivesoftware.openfire.pubsub.LeafNode;
 import org.jivesoftware.openfire.pubsub.Node;
 import org.jivesoftware.openfire.pubsub.NodeSubscription;
-import org.jivesoftware.openfire.pubsub.NodeSubscription.State;
 import org.jivesoftware.openfire.pubsub.PubSubModule;
 import org.jivesoftware.openfire.pubsub.PubSubPersistenceManager;
 import org.jivesoftware.openfire.pubsub.PublishedItem;
+import org.jivesoftware.openfire.user.UserManager;
+import org.jivesoftware.util.WebManager;
 import org.xmpp.packet.JID;
+
+// TODO: We should get the correct user name instead of the hard-coded "admin".
 
 public class PubSubManager {
 	private PubSubModule pubSubModule = null;
@@ -29,7 +32,7 @@ public class PubSubManager {
 		// Or we can also set the options in Admin console.
 		DefaultNodeConfiguration leafNodeConfig = pubSubModule.getDefaultNodeConfiguration(true);
 		boolean shouldUpdate = false;
-System.out.println("init: " + leafNodeConfig.isPersistPublishedItems());
+//System.out.println("init: " + leafNodeConfig.isPersistPublishedItems());
 		if (!leafNodeConfig.isPersistPublishedItems()) {
 		    leafNodeConfig.setPersistPublishedItems(true);
 		    shouldUpdate = true;
@@ -80,22 +83,20 @@ System.out.println("init: " + leafNodeConfig.isPersistPublishedItems());
             return false;
         }
         JID creator = XMPPServer.getInstance().createJID("admin", null);
-        JID subscriber = XMPPServer.getInstance().createJID("cat2", null);
         LeafNode newTopic = new LeafNode(pubSubModule, null, topicId, creator);
         // Create CollectionNode if we have more depth.
         //CollectionNode newNode = new CollectionNode(pubSubModule, null, topicId, creator);
         newTopic.addOwner(creator);
-        NodeSubscription sub = new NodeSubscription(newTopic, creator, subscriber, 
-                State.subscribed, generateSubscriptionID(topicId, "cat2"));
-        newTopic.addSubscription(sub);
         newTopic.saveToDB();
         return true;
     }
 
     // TODO: add sys admin.
-    public void setSysAdmins() {
-        JID owner = XMPPServer.getInstance().createJID("admin", null);
-        pubSubModule.addSysadmin(owner.toBareJID());
+    public void setSysAdmins(JID bareJID) {
+        if (!UserManager.getInstance().isRegisteredUser(bareJID.toBareJID())) {
+            return;
+        }
+        pubSubModule.addSysadmin(bareJID.toBareJID());
     }
 
     // Delete a published item.
@@ -143,15 +144,12 @@ System.out.println("init: " + leafNodeConfig.isPersistPublishedItems());
 
         String[] payloads = new String[1];
         payloads[0] = data;
-        //createPublishItemElements(payloads);
         leafNode.publishItems(owner, createPublishItemElements(payloads));
-System.out.println("----done: ");
         return true;
     }
 
     static List<Element> createPublishItemElements(String[] payloads) {
         Document document = DocumentHelper.createDocument();
-        QName qName = new QName(null, null, null);
         Element pubsubEle = document.addElement(QName.get("pubsub", "http://jabber.org/protocol/pubsub"));
         Element publishEle = pubsubEle.addElement("publish");
 
@@ -163,12 +161,11 @@ System.out.println("----done: ");
             publishItemEle.addElement("message").addText(payload);
             items.add(publishItemEle);
         }
-System.out.println("document: " + document.asXML());
         return items;
     }
 
     static String generateUniquePublishItemID() {
-        // TBD is needed.
+        // TBD if needed.
         return "";
     }
 
